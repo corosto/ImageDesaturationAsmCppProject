@@ -28,9 +28,11 @@ private:
     QImage blankImage;
     bool validImage;
     std::mutex mut;
-    typedef float(_stdcall* AsmConversion)(float, float, float);
     HINSTANCE dllHandle = NULL;
+    typedef float(_stdcall* AsmConversion)(float, float, float);
     AsmConversion AssemblerFunction;
+    typedef float(_stdcall* CppConversion)(int, int, int);
+    CppConversion CPlusPlusFunction;
 
 private slots:
     void threadsSlider();

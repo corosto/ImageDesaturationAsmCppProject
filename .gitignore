@@ -9,35 +9,13 @@
 
 # Precompiled Headers
 *.gch
-*.pch
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
 
 # Fortran module files
 *.mod
 *.smod
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
 
 # Executables
 *.exe
 *.out
 *.app
-
-.vs
-ImageDesaturation/Debug
-ImageDesaturation/Release
-ImageDesaturation/x64
-CppLibrary/Debug
-CppLibrary/Release
-CppLibrary/x64
-AsmLibrary/Debug
-AsmLibrary/Release
-AsmLibrary/x64

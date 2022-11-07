@@ -1,6 +1,5 @@
 #include "ImageDesaturation.h"
 #include "windows.h"
-#include "CppLibrary.h"
 #include <QMutexLocker>
 
 ImageDesaturation::ImageDesaturation(QWidget *parent)
@@ -69,46 +68,60 @@ void ImageDesaturation::convertImage() {
         if (ui.useCPPdll->isChecked()) {
 
             clock_t start = clock();
+            dllHandle = LoadLibrary(TEXT("CppLibrary.dll"));
 
-            for (int threadNumber = 0; threadNumber < threadCount; threadNumber++) {
-                int startRow = threadNumber * rowsPerThread;
-                int endRow = ((threadNumber + 1) * rowsPerThread) - 1;
+            if (dllHandle != NULL) {
+                CPlusPlusFunction = (CppConversion)GetProcAddress(dllHandle, "CppConversion");
 
-                if (threadNumber + 1 == threadCount) {//tzn ze to ostatni loop
-                    myThreads.push_back(std::thread(&ImageDesaturation::cppThreadConversion, this, startRow, imageAfter.height()-1));
+                if (NULL != CPlusPlusFunction) {
+
+                    for (int threadNumber = 0; threadNumber < threadCount; threadNumber++) {
+                        int startRow = threadNumber * rowsPerThread;
+                        int endRow = ((threadNumber + 1) * rowsPerThread) - 1;
+
+                        if (threadNumber + 1 == threadCount) {//tzn ze to ostatni loop
+                            myThreads.push_back(std::thread(&ImageDesaturation::cppThreadConversion, this, startRow, imageAfter.height() - 1));
+                        }
+                        else {
+                            myThreads.push_back(std::thread(&ImageDesaturation::cppThreadConversion, this, startRow, endRow));
+                        }
+                    }
+
+                    for (auto& t : myThreads) {
+                        t.join();
+                    }
                 }
-                else {
-                    myThreads.push_back(std::thread(&ImageDesaturation::cppThreadConversion, this, startRow, endRow));
-                }
-            }
-
-            for (auto& t : myThreads) {
-                t.join();
             }
 
             clock_t end = clock();
             elapsed = double(end - start) / CLOCKS_PER_SEC;
         }
         else if(ui.useASMdll->isChecked()) {
+
             clock_t start = clock();
-
             dllHandle = LoadLibrary(TEXT("AsmLibrary.dll"));
-            AssemblerFunction = (AsmConversion)GetProcAddress(dllHandle, "AsmConversion");
 
-            for (int threadNumber = 0; threadNumber < threadCount; threadNumber++) {
-                int startRow = threadNumber * rowsPerThread;
-                int endRow = ((threadNumber + 1) * rowsPerThread) - 1;
+            if (dllHandle != NULL) {
+                AssemblerFunction = (AsmConversion)GetProcAddress(dllHandle, "AsmConversion");
 
-                if (threadNumber + 1 == threadCount) {//tzn ze to ostatni loop
-                    myThreads.push_back(std::thread(&ImageDesaturation::asmThreadConversion, this, startRow, imageAfter.height() - 1));
+                if (NULL != AssemblerFunction) {
+                
+                    for (int threadNumber = 0; threadNumber < threadCount; threadNumber++) {
+                        int startRow = threadNumber * rowsPerThread;
+                        int endRow = ((threadNumber + 1) * rowsPerThread) - 1;
+
+                        if (threadNumber + 1 == threadCount) {//tzn ze to ostatni loop
+                            myThreads.push_back(std::thread(&ImageDesaturation::asmThreadConversion, this, startRow, imageAfter.height() - 1));
+                        }
+                        else {
+                            myThreads.push_back(std::thread(&ImageDesaturation::asmThreadConversion, this, startRow, endRow));
+                        }
+                    }
+
+                    for (auto& t : myThreads) {
+                        t.join();
+                    }
                 }
-                else {
-                    myThreads.push_back(std::thread(&ImageDesaturation::asmThreadConversion, this, startRow, endRow));
-                }
-            }
-
-            for (auto& t : myThreads) {
-                t.join();
             }
 
             clock_t end = clock();
@@ -132,7 +145,7 @@ void ImageDesaturation::cppThreadConversion(int startingRow, int endingRow) {
     for (int row = startingRow; row <= endingRow; row++) {
         for (int col = 0; col < this->imageAfter.width(); col++) {
             QColor currentRGB = this->imageAfter.pixel(col, row);
-            float greyValue = CppConversion(currentRGB.red(), currentRGB.green(), currentRGB.blue());
+            float greyValue = CPlusPlusFunction(currentRGB.red(), currentRGB.green(), currentRGB.blue());
             QMutexLocker locker(&mut);// 6|7 razy wolniej, ale bez tego sa artefakty
             this->imageAfter.setPixel(col, row, qRgb(greyValue, greyValue, greyValue));
         }
