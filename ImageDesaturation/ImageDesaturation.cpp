@@ -20,7 +20,7 @@ void ImageDesaturation::threadsSlider() {
 
 void ImageDesaturation::loadImage() {
     QString file = QFileDialog::getOpenFileName(this, tr("Choose"), "C:/Users/filip/Downloads", tr("Images(*.png * .jpg * .jpeg * .bmp)"));
-    QString fileName = file.mid(file.lastIndexOf("/") + 1);
+    QString fileName = file.mid(file.lastIndexOf("/") + 1);//SCIEZKA DO ZMIANY
 
     if (QString::compare(file, QString()) != 0) {
         imageAfter = blankImage;
@@ -55,14 +55,15 @@ void ImageDesaturation::loadImage() {
 void ImageDesaturation::convertImage() {
     
     if (validImage) {
+
         imageAfter  = blankImage;
         ui.imageAfter->setPixmap(QPixmap::fromImage(blankImage));
-
         imageAfter = imageBefore;
+
         int threadCount = ui.threadsSlider->value();
         double rowsPerThread = std::ceil(imageAfter.height() / threadCount);
+        double elapsed = 0;
 
-        double elapsed = {};
         std::vector<std::thread> myThreads;
 
         if (ui.useCPPdll->isChecked()) {
@@ -132,23 +133,18 @@ void ImageDesaturation::cppThreadConversion(int startingRow, int endingRow) {
         for (int col = 0; col < this->imageAfter.width(); col++) {
             QColor currentRGB = this->imageAfter.pixel(col, row);
             float greyValue = CppConversion(currentRGB.red(), currentRGB.green(), currentRGB.blue());
-
-            //QMutexLocker locker(&mut);// 6|7 razy wolniej, ale bez tego sa artefakty
-
+            QMutexLocker locker(&mut);// 6|7 razy wolniej, ale bez tego sa artefakty
             this->imageAfter.setPixel(col, row, qRgb(greyValue, greyValue, greyValue));
         }
     }
 }
 
-void ImageDesaturation::asmThreadConversion(int startingRow, int rowsPerThread) {
-    for (int row = startingRow; row < rowsPerThread; row++) {
+void ImageDesaturation::asmThreadConversion(int startingRow, int endingRow) {
+    for (int row = startingRow; row <= endingRow; row++) {
         for (int col = 0; col < this->imageAfter.width(); col++) {
             QColor currentRGB = this->imageAfter.pixel(col, row);
-
             float greyValue = AssemblerFunction((float)currentRGB.red(), (float)currentRGB.green(), (float)currentRGB.blue());
-
             QMutexLocker locker(&mut);// 6|7 razy wolniej, ale bez tego sa artefakty
-
             this->imageAfter.setPixel(col, row, qRgb(greyValue, greyValue, greyValue));
         }
     }

@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\Projects\JA_projekt\ImageDesaturation\x64\Debug\ImageDesaturation.exe</FullPath>
+      <FullPath>D:\Projects\ImageDesaturationAsmCppProject\ImageDesaturation\x64\Debug\ImageDesaturation.exe</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

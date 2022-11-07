@@ -1,1 +1,3 @@
-﻿  CppLibrary.vcxproj -> D:\Projects\JA_projekt\ImageDesaturation\x64\Debug\CppLibrary.dll
+﻿  LINK : program database D:\Projects\ImageDesaturationAsmCppProject\ImageDesaturation\x64\Debug\CppLibrary.pdb missing; performing full link
+     Creating library D:\Projects\ImageDesaturationAsmCppProject\ImageDesaturation\x64\Debug\CppLibrary.lib and object D:\Projects\ImageDesaturationAsmCppProject\ImageDesaturation\x64\Debug\CppLibrary.exp
+  CppLibrary.vcxproj -> D:\Projects\ImageDesaturationAsmCppProject\ImageDesaturation\x64\Debug\CppLibrary.dll
