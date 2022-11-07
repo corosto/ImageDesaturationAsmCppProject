@@ -1,0 +1,2 @@
+C:\Users\filip\Desktop\JA_projekt\ImageDesaturation\x64\Debug\ImageDesaturation.exe
+D:\Projects\JA_projekt\ImageDesaturation\x64\Debug\ImageDesaturation.exe
