@@ -1,7 +1,0 @@
-﻿  pch.cpp
-  CppLibrary.cpp
-D:\Projects\JA_projekt\CppLibrary\CppLibrary.cpp(5,40): warning C4244: 'return': conversion from 'double' to 'float', possible loss of data
-  dllmain.cpp
-  Generating Code...
-     Creating library D:\Projects\JA_projekt\ImageDesaturation\Debug\CppLibrary.lib and object D:\Projects\JA_projekt\ImageDesaturation\Debug\CppLibrary.exp
-  CppLibrary.vcxproj -> D:\Projects\JA_projekt\ImageDesaturation\Debug\CppLibrary.dll

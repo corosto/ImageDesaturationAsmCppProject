@@ -23,25 +23,26 @@
 ; ---------------------------------------------------------------------
 
 
-
-; tworzenie stalych ktore zostana uzyte do otrzymania odcieniu szarosci
 .data
+; tworzenie stalych ktore zostana uzyte do otrzymania odcieniu szarosci
 RED_MULTIPLIER real4 0.2627
 GREEN_MULTIPLIER real4 0.6780
 BLUE_MULTIPLIER real4 0.0593
 
 .code
-AsmConversion proc
+AsmConversion proc ;poczatek pogramu desaturacji
 
-movd xmm3, RED_MULTIPLIER
+movd xmm3, RED_MULTIPLIER ;ladowanie wartosci zmiennych do rejestrow xmm3-5
 movd xmm4, GREEN_MULTIPLIER
 movd xmm5, BLUE_MULTIPLIER
-mulss xmm0, xmm3
-mulss xmm1, xmm4
-mulss xmm2, xmm5
-addss xmm0, xmm1
-addss xmm0, xmm2
+
+mulss xmm0, xmm3 ;mnozenie pierwszego przekazanego do funkcji parametru przez odpowiednia wartosc
+mulss xmm1, xmm4 ;mnozenie drugiego przekazanego do funkcji parametru przez odpowiednia wartosc
+mulss xmm2, xmm5 ;mnozenie trzeciego przekazanego do funkcji parametru przez odpowiednia wartosc
+
+addss xmm0, xmm1 ;sumowanie otrzymanych wartosci aby,
+addss xmm0, xmm2 ;otrzymac odpowiedni kolor pixela
 
 ret
-AsmConversion endp
-end
+AsmConversion endp 
+end ;koniec pogramu desaturacji
