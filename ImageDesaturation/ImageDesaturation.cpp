@@ -1,51 +1,49 @@
 #include "ImageDesaturation.h"
-#include "windows.h"
-#include <QMutexLocker>
 
 ImageDesaturation::ImageDesaturation(QWidget *parent)
     : QMainWindow(parent)
 {
-    ui.setupUi(this);
-    setWindowFlags(Qt::Window | Qt::MSWindowsFixedSizeDialogHint);
-    this->setFixedSize(QSize(1072, 583));
+    ui.setupUi(this); //setup okna
+    setWindowFlags(Qt::Window | Qt::MSWindowsFixedSizeDialogHint); //blokowanie zmiany rozmiaru okna
+    this->setFixedSize(QSize(1072, 583)); //ustawianie stalego rozmiaru okna
 }
 
 ImageDesaturation::~ImageDesaturation()
 {}
 
 void ImageDesaturation::threadsSlider() {
-    ui.threadsDisplay->setText(QString::number(ui.threadsSlider->value()));
+    ui.threadsDisplay->setText(QString::number(ui.threadsSlider->value())); //wyswietlanie slidera ilosci threadow w oknie
 }
 
-void ImageDesaturation::loadImage() {
-    QString file = QFileDialog::getOpenFileName(this, tr("Choose"), "C:/Users/filip/Downloads", tr("Images(*.png * .jpg * .jpeg * .bmp)"));
-    QString fileName = file.mid(file.lastIndexOf("/") + 1);//SCIEZKA DO ZMIANY
+void ImageDesaturation::loadImage() {///////////////////////////////////////////////////////////
+    QString file = QFileDialog::getOpenFileName(this, tr("Choose"), "C:/Users/", tr("Images(*.png * .jpg * .jpeg * .bmp)"));
+    QString fileName = file.mid(file.lastIndexOf("/") + 1);//wyluskiwanie nazwy pliku do wyswietlenia w oknie
 
     if (QString::compare(file, QString()) != 0) {
-        imageAfter = blankImage;
-        imageBefore = blankImage;
-        ui.imageBefore->setPixmap(QPixmap::fromImage(blankImage));
-        ui.imageAfter->setPixmap(QPixmap::fromImage(blankImage));
+        imageAfter = blankImage; //czyszczenie zmiennych oraz obrazow
+        imageBefore = blankImage; //czyszczenie zmiennych oraz obrazow
+        ui.imageBefore->setPixmap(QPixmap::fromImage(blankImage)); //czyszczenie zmiennych oraz obrazow
+        ui.imageAfter->setPixmap(QPixmap::fromImage(blankImage)); //czyszczenie zmiennych oraz obrazow
 
-        validImage = imageBefore.load(file);
+        validImage = imageBefore.load(file); //ladowanie zdjecia oraz zapisywanie czy sie zaladowalo
 
-        if (validImage) {
-            if (ui.scaleImagesButton->isChecked()) {
+        if (validImage) {//jezeli tak to program sprawdza czy uzytkownik chce miec zdjecie przeskalowane do odpowiedniej wielkosci
+            if (ui.scaleImagesButton->isChecked()) { //i laduje zdjecie w odpowiednim miejscu w oknie
                 QImage scaledImageBefore = imageBefore.scaled(ui.imageBefore->width(), ui.imageBefore->height());
                 ui.imageBefore->setPixmap(QPixmap::fromImage(scaledImageBefore));
             }
             else {
                 ui.imageBefore->setPixmap(QPixmap::fromImage(imageBefore));
             }
-            ui.scaleImagesButton->setEnabled(false);
-            ui.convertImageButton->setEnabled(true);
+            ui.scaleImagesButton->setEnabled(false);//wylaczenie mozliwosci skalowania zdjecia
+            ui.convertImageButton->setEnabled(true); //wlaczenie mozliwosci desaturacji zdjecia
+            ui.timeLabel->setText(""); //wyczyszczenie labela z czasem konwersji
             ui.messageForUser->setAlignment(Qt::AlignCenter);
-            ui.timeLabel->setText("");
-            ui.messageForUser->setText("Waiting for action...");
-            ui.nameLabel->setText("Image name: " + fileName);
-            ui.dimensionsLabel->setText("Image dimensions: " + QString::number(imageBefore.width()) + " x " + QString::number(imageBefore.height()));
+            ui.messageForUser->setText("Waiting for action..."); //wiadomosc dla uzytkownika
+            ui.nameLabel->setText("Image name: " + fileName); //nazwa pliku
+            ui.dimensionsLabel->setText("Image dimensions: " + QString::number(imageBefore.width()) + " x " + QString::number(imageBefore.height()));//wymiary pliku
         }
-        else {
+        else {//jezeli nie udalo sie zaladowac zdjecia to uzytkownik moze sprobowac znow wczytac zdjecie
             ui.convertImageButton->setEnabled(false);
         }
     }
@@ -55,110 +53,67 @@ void ImageDesaturation::convertImage() {
     
     if (validImage) {
 
+        myThreads.clear(); //czyszczenie wszytskich zmiennych
+        elapsed;
         imageAfter  = blankImage;
-        ui.imageAfter->setPixmap(QPixmap::fromImage(blankImage));
         imageAfter = imageBefore;
+        ui.imageAfter->setPixmap(QPixmap::fromImage(blankImage));
 
-        int threadCount = ui.threadsSlider->value();
-        double rowsPerThread = std::ceil(imageAfter.height() / threadCount);
-        double elapsed = 0;
+        threadCount = ui.threadsSlider->value(); //ilosc watkow ktora wybral uzytkownik
+        rowsPerThread = std::ceil(imageAfter.height() / threadCount); //ilosc wierszy przypadajacych na 1 watek
 
-        std::vector<std::thread> myThreads;
+        clock_t start = clock(); //poczatek mierzenia czasu
+        dllHandle = (ui.useCPPdll->isChecked()) ? LoadLibrary(TEXT("CppLibrary.dll")) : LoadLibrary(TEXT("AsmLibrary.dll")); //ladowanie biblioteki do handlera
 
-        if (ui.useCPPdll->isChecked()) {
+        if (dllHandle != NULL) { //pomyslnie zaladowano
+            ConversionFunction = (DesaturationFunction)GetProcAddress(dllHandle, "DesaturationFunction"); //ladowanie adresu biblioteki
 
-            clock_t start = clock();
-            dllHandle = LoadLibrary(TEXT("CppLibrary.dll"));
+            if (NULL != ConversionFunction) {//jezeli to tez sie powiodlo to 
 
-            if (dllHandle != NULL) {
-                CPlusPlusFunction = (CppConversion)GetProcAddress(dllHandle, "CppConversion");
+                for (int threadNumber = 0; threadNumber < threadCount; threadNumber++) {
+                    int startRow = threadNumber * rowsPerThread;//miejsce od ktorego watek zaczyna
+                    int endRow = ((threadNumber + 1) * rowsPerThread) - 1;//miejsce w ktorym watek konczy
 
-                if (NULL != CPlusPlusFunction) {
-
-                    for (int threadNumber = 0; threadNumber < threadCount; threadNumber++) {
-                        int startRow = threadNumber * rowsPerThread;
-                        int endRow = ((threadNumber + 1) * rowsPerThread) - 1;
-
-                        if (threadNumber + 1 == threadCount) {//tzn ze to ostatni loop
-                            myThreads.push_back(std::thread(&ImageDesaturation::cppThreadConversion, this, startRow, imageAfter.height() - 1));
-                        }
-                        else {
-                            myThreads.push_back(std::thread(&ImageDesaturation::cppThreadConversion, this, startRow, endRow));
-                        }
+                    if (threadNumber + 1 == threadCount) {//ostatni loop, dostaje wiersze od swojego poczatku do konca zdjecia
+                        myThreads.push_back(std::thread(&ImageDesaturation::ThreadConversion, this, startRow, imageAfter.height() - 1));
                     }
-
-                    for (auto& t : myThreads) {
-                        t.join();
+                    else {//kazdy inny loop, kazdy thread dostaje odpowiednie zakresy
+                        myThreads.push_back(std::thread(&ImageDesaturation::ThreadConversion, this, startRow, endRow));
                     }
                 }
-            }
 
-            clock_t end = clock();
-            elapsed = double(end - start) / CLOCKS_PER_SEC;
-        }
-        else if(ui.useASMdll->isChecked()) {
-
-            clock_t start = clock();
-            dllHandle = LoadLibrary(TEXT("AsmLibrary.dll"));
-
-            if (dllHandle != NULL) {
-                AssemblerFunction = (AsmConversion)GetProcAddress(dllHandle, "AsmConversion");
-
-                if (NULL != AssemblerFunction) {
-                
-                    for (int threadNumber = 0; threadNumber < threadCount; threadNumber++) {
-                        int startRow = threadNumber * rowsPerThread;
-                        int endRow = ((threadNumber + 1) * rowsPerThread) - 1;
-
-                        if (threadNumber + 1 == threadCount) {//tzn ze to ostatni loop
-                            myThreads.push_back(std::thread(&ImageDesaturation::asmThreadConversion, this, startRow, imageAfter.height() - 1));
-                        }
-                        else {
-                            myThreads.push_back(std::thread(&ImageDesaturation::asmThreadConversion, this, startRow, endRow));
-                        }
-                    }
-
-                    for (auto& t : myThreads) {
-                        t.join();
-                    }
+                for (auto& t : myThreads) {
+                    t.join(); //joinowanie wszytskich threadow
                 }
+            
+                clock_t end = clock(); //koniec mierzenia czasu
+                elapsed = double(end - start) / CLOCKS_PER_SEC;  //obliczanie czasu trwania programu
+
+                if (ui.scaleImagesButton->isChecked()) {//ladowanie zdjecia(przeskalowanego lub nie) do miejsca wynikowego
+                    QImage scaledImageAfter = imageAfter.scaled(ui.imageAfter->width(), ui.imageAfter->height());
+                    ui.imageAfter->setPixmap(QPixmap::fromImage(scaledImageAfter));
+                }
+                else {
+                    ui.imageAfter->setPixmap(QPixmap::fromImage(imageAfter));
+                }
+        
+                ui.timeLabel->setText("Execution time: " + QString::number(elapsed) + " seconds");//wypisanie czasu dzialania konwersji
+                ui.scaleImagesButton->setEnabled(true);//wlaczenie przycisku do skalowania
             }
-
-            clock_t end = clock();
-            elapsed = double(end - start) / CLOCKS_PER_SEC;
-        }
-
-        if (ui.scaleImagesButton->isChecked()) {
-            QImage scaledImageAfter = imageAfter.scaled(ui.imageAfter->width(), ui.imageAfter->height());
-            ui.imageAfter->setPixmap(QPixmap::fromImage(scaledImageAfter));
         }
         else {
-            ui.imageAfter->setPixmap(QPixmap::fromImage(imageAfter));
-        }
-        
-        ui.timeLabel->setText("Execution time: " + QString::number(elapsed) + " seconds");
-        ui.scaleImagesButton->setEnabled(true);
-    }
-}
-
-void ImageDesaturation::cppThreadConversion(int startingRow, int endingRow) {
-    for (int row = startingRow; row <= endingRow; row++) {
-        for (int col = 0; col < this->imageAfter.width(); col++) {
-            QColor currentRGB = this->imageAfter.pixel(col, row);
-            float greyValue = CPlusPlusFunction(currentRGB.red(), currentRGB.green(), currentRGB.blue());
-            QMutexLocker locker(&mut);// 6|7 razy wolniej, ale bez tego sa artefakty
-            this->imageAfter.setPixel(col, row, qRgb(greyValue, greyValue, greyValue));
+            exit(134);//blad wczytywania dll, wywala blad
         }
     }
 }
 
-void ImageDesaturation::asmThreadConversion(int startingRow, int endingRow) {
+void ImageDesaturation::ThreadConversion(int startingRow, int endingRow) {
     for (int row = startingRow; row <= endingRow; row++) {
         for (int col = 0; col < this->imageAfter.width(); col++) {
-            QColor currentRGB = this->imageAfter.pixel(col, row);
-            float greyValue = AssemblerFunction((float)currentRGB.red(), (float)currentRGB.green(), (float)currentRGB.blue());
-            QMutexLocker locker(&mut);// 6|7 razy wolniej, ale bez tego sa artefakty
-            this->imageAfter.setPixel(col, row, qRgb(greyValue, greyValue, greyValue));
+            QColor currentRGB = this->imageAfter.pixel(col, row);//wyluskanie RGB z pixela
+            float greyValue = ConversionFunction((float)currentRGB.red(), (float)currentRGB.green(), (float)currentRGB.blue());//wyliczenie odcienia szarosci w dll
+            QMutexLocker locker(&mut);// mutex zeby nie bylo artefaktow ale dziala 6|7 razy wolniej
+            this->imageAfter.setPixel(col, row, qRgb(greyValue, greyValue, greyValue));//ustawienie wyliczonej wartosci na odpowiednim pixelu
         }
     }
 }

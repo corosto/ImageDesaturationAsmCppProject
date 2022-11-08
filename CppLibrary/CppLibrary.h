@@ -6,5 +6,6 @@
 #define CPP_LIBRARY_API __declspec(dllexport)
 #endif
 
-//funkcja kompilowana w jezyku C, ktora zwraca odpowiedni szary odcien pixela
-extern "C" CPP_LIBRARY_API float CppConversion(int, int, int);
+//funkcja ktora ma narzucone kompilowanie w C, ktora jest poza glownym 
+//programem jako dllexport, zwraca odpowiedni szary odcien pixela
+extern "C" CPP_LIBRARY_API float DesaturationFunction(float, float, float);

@@ -6,9 +6,8 @@
 #include <QtWidgets/QMainWindow>
 #include <QFileDialog>
 #include <QColor>
-#include <QDebug>
-#include <time.h>
-#include <future>
+#include <QMutexLocker>
+#include "windows.h"
 #include "ui_ImageDesaturation.h"
 
 class ImageDesaturation : public QMainWindow
@@ -16,26 +15,28 @@ class ImageDesaturation : public QMainWindow
     Q_OBJECT
 
 public:
-    ImageDesaturation(QWidget *parent = nullptr);
-    ~ImageDesaturation();
-    void cppThreadConversion(int, int);
-    void asmThreadConversion(int, int);
+    ImageDesaturation(QWidget *parent = nullptr); //postawowy konstruktor
+    ~ImageDesaturation(); //postawowy destruktor
 
 private:
-    Ui::MainWindow ui;
-    QImage imageBefore;
-    QImage imageAfter;
-    QImage blankImage;
-    bool validImage;
-    std::mutex mut;
-    HINSTANCE dllHandle = NULL;
-    typedef float(_stdcall* AsmConversion)(float, float, float);
-    AsmConversion AssemblerFunction;
-    typedef float(_stdcall* CppConversion)(int, int, int);
-    CppConversion CPlusPlusFunction;
+    void ThreadConversion(int, int); //funkcje przyjmujace poczatkowy i koncowy wiersz dla danego watku, 
+                                     //wywoluja petle i przekazuja parametry pojedynczego pixela do dll
+    Ui::MainWindow ui; //obiekt okna
+    QImage imageBefore; //zmienna przechowujaca zdjecie po konwersji
+    QImage imageAfter; //zmienna przechowujaca zdjecie przed konwersja
+    QImage blankImage; //pusta zmienna uzywana do czyszczenia imageAfter oraz imageBefore
+    bool validImage = false; //zmienna uzywana do sprawdzenia czy zdjecie zostalo wczytane
+    std::mutex mut; //obiekt mutexa
+    HINSTANCE dllHandle = NULL; //handler do dll'ki
+    typedef float(_stdcall* DesaturationFunction)(float, float, float); //definicja funkcji bedacej w dll zwracajaca odpowiedni kolor pixela
+    DesaturationFunction ConversionFunction; //funkcja desaturacji w dll z assemblera i c++
+    std::vector<std::thread> myThreads; //wektor watkow
+    double elapsed = 0; //czas wykonania konwersji
+    int threadCount = 0; //ilosc watkow
+    double rowsPerThread = 0; //ilosc wierszy na watek
 
 private slots:
-    void threadsSlider();
-    void loadImage();
-    void convertImage();
+    void threadsSlider(); //metoda wyboru ilosci watkow
+    void loadImage(); //metoda ladujaca zdjecie 
+    void convertImage(); //metoda rozpoczynajaca konwersje zdjecia
 };

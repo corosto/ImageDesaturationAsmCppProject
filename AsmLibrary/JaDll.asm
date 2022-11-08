@@ -3,7 +3,7 @@
 ; Konwersja zdjecia kolorowego na zdjecie czarno - biale
 ; 24.10.2022 Filip Miera
 ; Informatyka SSI semestr 5 rok akademicki 2022 / 2023
-; v.0.0.2
+; v.1.0
 ;
 ; Program napisany w asemblerze ma na celu przeksztalcenie
 ; kolorowego zdjecia na zdjecie czarno - biale.
@@ -30,7 +30,7 @@ GREEN_MULTIPLIER real4 0.6780
 BLUE_MULTIPLIER real4 0.0593
 
 .code
-AsmConversion proc ;poczatek pogramu desaturacji
+DesaturationFunction proc ;poczatek pogramu desaturacji
 
 movd xmm3, RED_MULTIPLIER ;ladowanie wartosci zmiennych do rejestrow xmm3-5
 movd xmm4, GREEN_MULTIPLIER
@@ -44,5 +44,5 @@ addss xmm0, xmm1 ;sumowanie otrzymanych wartosci aby,
 addss xmm0, xmm2 ;otrzymac odpowiedni kolor pixela
 
 ret
-AsmConversion endp 
+DesaturationFunction endp 
 end ;koniec pogramu desaturacji

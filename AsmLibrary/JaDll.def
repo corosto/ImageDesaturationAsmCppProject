@@ -1,2 +1,2 @@
 LIBRARY AsmLibrary
-EXPORTS AsmConversion
+EXPORTS DesaturationFunction
