@@ -367,19 +367,6 @@
      </property>
     </widget>
    </widget>
-   <widget class="QLabel" name="logger">
-    <property name="geometry">
-     <rect>
-      <x>680</x>
-      <y>20</y>
-      <width>311</width>
-      <height>61</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Logger here</string>
-    </property>
-   </widget>
    <zorder>frame</zorder>
    <zorder>imageBefore</zorder>
    <zorder>useASMdll</zorder>
@@ -397,7 +384,6 @@
    <zorder>scaleImagesButton</zorder>
    <zorder>timeLabel</zorder>
    <zorder>threadsSlider</zorder>
-   <zorder>logger</zorder>
   </widget>
  </widget>
  <resources/>
