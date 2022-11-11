@@ -100,6 +100,7 @@ void ImageDesaturation::convertImage() {
                 ui.timeLabel->setText("Execution time: " + QString::number(elapsed) + " seconds");//wypisanie czasu dzialania konwersji
                 ui.scaleImagesButton->setEnabled(true);//wlaczenie przycisku do skalowania
             }
+            FreeLibrary(dllHandle);
         }
         else {
             exit(134);//blad wczytywania dll, wywala blad
