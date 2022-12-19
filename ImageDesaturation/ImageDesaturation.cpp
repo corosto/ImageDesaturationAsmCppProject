@@ -6,6 +6,7 @@ ImageDesaturation::ImageDesaturation(QWidget *parent)
     ui.setupUi(this); //setup okna
     setWindowFlags(Qt::Window | Qt::MSWindowsFixedSizeDialogHint); //blokowanie zmiany rozmiaru okna
     this->setFixedSize(QSize(1072, 583)); //ustawianie stalego rozmiaru okna
+    ui.threadsSlider->setValue(std::thread::hardware_concurrency());
 }
 
 ImageDesaturation::~ImageDesaturation()
