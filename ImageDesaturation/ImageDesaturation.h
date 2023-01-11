@@ -7,7 +7,12 @@
 #include <QFileDialog>
 #include <QColor>
 #include <QMutexLocker>
+#include <QMainWindow>
+#include <QtCharts>
+#include <QChartView>
+#include <QLineSeries>
 #include "windows.h"
+#include "histogram.h"
 #include "ui_ImageDesaturation.h"
 
 class ImageDesaturation : public QMainWindow
@@ -34,9 +39,13 @@ private:
     double elapsed = 0; //czas wykonania konwersji
     int threadCount = 0; //ilosc watkow
     double rowsPerThread = 0; //ilosc wierszy na watek
+    histogram* histogramBefore;
+    histogram* histogramAfter;
 
 private slots:
     void threadsSlider(); //metoda wyboru ilosci watkow
     void loadImage(); //metoda ladujaca zdjecie 
     void convertImage(); //metoda rozpoczynajaca konwersje zdjecia
+    void CreateColorChart();
+    void CreateGreyChart();
 };

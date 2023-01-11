@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1085</width>
-    <height>610</height>
+    <width>1089</width>
+    <height>646</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,7 +23,7 @@
    <widget class="QRadioButton" name="useASMdll">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>330</x>
       <y>510</y>
       <width>191</width>
       <height>51</height>
@@ -47,7 +47,7 @@
    <widget class="QRadioButton" name="useCPPdll">
     <property name="geometry">
      <rect>
-      <x>350</x>
+      <x>330</x>
       <y>470</y>
       <width>191</width>
       <height>51</height>
@@ -261,8 +261,8 @@
    <widget class="QCheckBox" name="scaleImagesButton">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>400</y>
+      <x>330</x>
+      <y>440</y>
       <width>181</width>
       <height>41</height>
      </rect>
@@ -292,33 +292,11 @@
      <string/>
     </property>
    </widget>
-   <widget class="QSlider" name="threadsSlider">
-    <property name="geometry">
-     <rect>
-      <x>610</x>
-      <y>511</y>
-      <width>201</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="minimum">
-     <number>1</number>
-    </property>
-    <property name="maximum">
-     <number>64</number>
-    </property>
-    <property name="pageStep">
-     <number>5</number>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
-    </property>
-   </widget>
    <widget class="QFrame" name="frame">
     <property name="geometry">
      <rect>
-      <x>540</x>
-      <y>470</y>
+      <x>580</x>
+      <y>460</y>
       <width>341</width>
       <height>91</height>
      </rect>
@@ -366,6 +344,60 @@
       <string>1</string>
      </property>
     </widget>
+    <widget class="QSlider" name="threadsSlider">
+     <property name="geometry">
+      <rect>
+       <x>60</x>
+       <y>40</y>
+       <width>201</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>64</number>
+     </property>
+     <property name="pageStep">
+      <number>5</number>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </widget>
+   <widget class="QPushButton" name="showGreyHistogramButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>570</y>
+      <width>111</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Grey histogram</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="showColorHistogramButton">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
+    <property name="geometry">
+     <rect>
+      <x>590</x>
+      <y>570</y>
+      <width>111</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Color histogram</string>
+    </property>
    </widget>
    <zorder>frame</zorder>
    <zorder>imageBefore</zorder>
@@ -383,7 +415,8 @@
    <zorder>dimensionsLabel</zorder>
    <zorder>scaleImagesButton</zorder>
    <zorder>timeLabel</zorder>
-   <zorder>threadsSlider</zorder>
+   <zorder>showGreyHistogramButton</zorder>
+   <zorder>showColorHistogramButton</zorder>
   </widget>
  </widget>
  <resources/>
@@ -452,11 +485,45 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>showGreyHistogramButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CreateGreyChart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>535</x>
+     <y>171</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>636</x>
+     <y>482</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>showColorHistogramButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>CreateColorChart()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>645</x>
+     <y>581</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>544</x>
+     <y>322</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>loadImage()</slot>
   <slot>convertImage()</slot>
   <slot>threadsSlider()</slot>
+  <slot>CreateColorChart()</slot>
+  <slot>CreateGreyChart()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="dllGroup"/>

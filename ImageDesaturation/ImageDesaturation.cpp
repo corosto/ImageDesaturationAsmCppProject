@@ -1,11 +1,11 @@
 #include "ImageDesaturation.h"
 
-ImageDesaturation::ImageDesaturation(QWidget *parent)
+ImageDesaturation::ImageDesaturation(QWidget* parent)
     : QMainWindow(parent)
 {
     ui.setupUi(this); //setup okna
     setWindowFlags(Qt::Window | Qt::MSWindowsFixedSizeDialogHint); //blokowanie zmiany rozmiaru okna
-    this->setFixedSize(QSize(1072, 583)); //ustawianie stalego rozmiaru okna
+    this->setFixedSize(QSize(1072, 620)); //ustawianie stalego rozmiaru okna
     ui.threadsSlider->setValue(std::thread::hardware_concurrency());
 }
 
@@ -38,6 +38,7 @@ void ImageDesaturation::loadImage() {///////////////////////////////////////////
             }
             ui.scaleImagesButton->setEnabled(false);//wylaczenie mozliwosci skalowania zdjecia
             ui.convertImageButton->setEnabled(true); //wlaczenie mozliwosci desaturacji zdjecia
+            ui.showColorHistogramButton->setEnabled(true); //wlaczenie mozliwosci pokazania histogramu
             ui.timeLabel->setText(""); //wyczyszczenie labela z czasem konwersji
             ui.messageForUser->setAlignment(Qt::AlignCenter);
             ui.messageForUser->setText("Waiting for action..."); //wiadomosc dla uzytkownika
@@ -55,8 +56,7 @@ void ImageDesaturation::convertImage() {
     if (validImage) {
 
         myThreads.clear(); //czyszczenie wszytskich zmiennych
-        elapsed;
-        imageAfter  = blankImage;
+        imageAfter = blankImage;
         imageAfter = imageBefore;
         ui.imageAfter->setPixmap(QPixmap::fromImage(blankImage));
 
@@ -102,6 +102,7 @@ void ImageDesaturation::convertImage() {
                 ui.scaleImagesButton->setEnabled(true);//wlaczenie przycisku do skalowania
             }
             FreeLibrary(dllHandle);
+            ui.showGreyHistogramButton->setEnabled(true); //wlaczenie mozliwosci pokazania histogramu
         }
         else {
             exit(134);//blad wczytywania dll, wywala blad
@@ -118,4 +119,14 @@ void ImageDesaturation::ThreadConversion(int startingRow, int endingRow) {
             this->imageAfter.setPixel(col, row, qRgb(greyValue, greyValue, greyValue));//ustawienie wyliczonej wartosci na odpowiednim pixelu
         }
     }
+}
+
+void ImageDesaturation::CreateColorChart() {
+    histogramBefore = new histogram(this->imageBefore, this);
+    histogramBefore->show();
+}
+
+void ImageDesaturation::CreateGreyChart() {
+    histogramAfter = new histogram(this->imageAfter, this);
+    histogramAfter->show();
 }
