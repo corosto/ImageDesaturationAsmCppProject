@@ -13,9 +13,9 @@ histogram::histogram(QImage image, QWidget* parent)
     for (int row = 0; row <= image.height(); row++) {
         for (int col = 0; col < image.width(); col++) {
             QColor currentRGB = image.pixel(col, row);
-            redBefore[currentRGB.red()]++;
-            greenBefore[currentRGB.green()]++;
-            blueBefore[currentRGB.blue()]++;
+            redArray[currentRGB.red()]++;
+            greenArray[currentRGB.green()]++;
+            blueArray[currentRGB.blue()]++;
         }
     }
 
@@ -24,9 +24,9 @@ histogram::histogram(QImage image, QWidget* parent)
     blue->setColor("blue");
     
     for (int i = 0; i < 256; i++) {
-        red->append(i, redBefore[i]);
-        green->append(i, greenBefore[i]);
-        blue->append(i, blueBefore[i]);
+        red->append(i, redArray[i]);
+        green->append(i, greenArray[i]);
+        blue->append(i, blueArray[i]);
     }
 
     chart->addSeries(red);
