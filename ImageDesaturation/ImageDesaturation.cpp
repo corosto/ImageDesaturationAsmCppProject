@@ -17,7 +17,8 @@ void ImageDesaturation::threadsSlider() {
 }
 
 void ImageDesaturation::loadImage() {///////////////////////////////////////////////////////////
-    QString file = QFileDialog::getOpenFileName(this, tr("Choose"), "C:/Users/", tr("Images(*.png * .jpg * .jpeg * .bmp)"));
+    QString selfilter = tr("JPEG (*.jpg *.jpeg);;PNG (*.png)");
+    QString file = QFileDialog::getOpenFileName(this, tr("Choose"), "C:/Users/", tr("JPEG (*.jpg *.jpeg);;PNG (*.png)"), &selfilter);
     QString fileName = file.mid(file.lastIndexOf("/") + 1);//wyluskiwanie nazwy pliku do wyswietlenia w oknie
 
     if (QString::compare(file, QString()) != 0) {
